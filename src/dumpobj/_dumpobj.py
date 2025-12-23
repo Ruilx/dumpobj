@@ -45,6 +45,8 @@ class Dump(object):
         "__reversed__",
         "__bool__",
         "__iter__",
+        "__firstlineno__",
+        "__static_attributes__",
     }
 
     def __init__(self):
@@ -60,8 +62,8 @@ class Dump(object):
             int: self._dump_number,
             float: self._dump_number,
             complex: self._dump_number,
-            None: self._dump_none,
-            Ellipsis: self._dump_ellipsis,
+            None.__class__: self._dump_none,
+            Ellipsis.__class__: self._dump_ellipsis,
             BaseException: self._dump_base_exception,
             type: self._dump_type,
             object: self._dump_object,

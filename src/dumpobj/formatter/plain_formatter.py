@@ -56,5 +56,7 @@ class PlainFormatter(Formatter):
                 s.append(f" {attrs}")
             s.append(f"{self.PropStringSuffix}")
         if value:
-            s.append(f" {value}")
+            if key or props:
+                s.append(" ")
+            s.append(f"{value}")
         return "".join(s)
