@@ -31,12 +31,20 @@ def __getattr__(name: str):
         return {
             "dump": dump,
             "Dump": Dump,
-        }
+        }[name]
+    raise AttributeError(f"module 'dumpobj' has no attribute {name!r}")
 
 def __dir__():
-    return ...
+    return sorted(
+        list(globals().keys())
+        + [
+            "dump",
+            "Dump",
+        ]
+    )
 
 
 __all__ = [
-
+    "dump",
+    "Dump",
 ]

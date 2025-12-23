@@ -5,7 +5,6 @@ from dumpobj import Dump, dump
 from dumpobj.formatter.plain_formatter import PlainFormatter
 from dumpobj.node import Node
 
-
 class TestDumpObj(unittest.TestCase):
     def setUp(self):
         self.dump = Dump()

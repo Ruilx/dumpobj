@@ -68,7 +68,7 @@ class Dump(object):
         }
 
         self.value_types = (
-            int, float, complex, bool, str, bytes
+            int, float, complex, bool, str, bytes, None.__class__
         )
 
         self.attr_config = {
@@ -170,10 +170,10 @@ class Dump(object):
     def get_depth(self):
         return self.depth
 
-    def set_str_if_recur(self, str_if_recur: Optional[str | Ellipsis]):
+    def set_str_if_recur(self, str_if_recur: Optional[str | Ellipsis.__class__]):
         self.str_if_recur = str_if_recur
 
-    def get_str_if_recur(self) -> Optional[str | Ellipsis]:
+    def get_str_if_recur(self) -> Optional[str | Ellipsis.__class__]:
         return self.str_if_recur
 
     def set_formatter(self, formatter: Optional[Formatter]):
