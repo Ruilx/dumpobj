@@ -1,5 +1,7 @@
 import sys
 
+from dumpobj.formatter.color_formatter import ColorFormatter
+
 print(sys.path)
 
 from dumpobj import dump, Dump
@@ -18,4 +20,7 @@ if __name__ == "__main__":
             self.d = A
 
 
-    print("\n".join(dump(A())))
+    d = Dump()
+    d.set_formatter(ColorFormatter())
+    for i in d.dump(A()):
+        print(i)

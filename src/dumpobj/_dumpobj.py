@@ -179,9 +179,10 @@ class Dump(object):
         return self.str_if_recur
 
     def set_formatter(self, formatter: Optional[Formatter]):
-        if formatter is not None and not issubclass(formatter.__class__, Formatter):
+        if formatter is not None and isinstance(formatter, Formatter) and type(formatter) is not Formatter:
+            self.formatter = formatter
+        else:
             raise ValueError("Cannot use base class Formatter as format implementation class.")
-        self.formatter = formatter
 
     def get_formatter(self) -> Optional[Formatter]:
         return self.formatter
