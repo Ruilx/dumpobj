@@ -87,7 +87,7 @@ class ColorFormatter(PlainFormatter):
     _color_indent_tree = lambda self, s: ColorFormatter.ColorSecondary
     _color_key = lambda self, s: ColorFormatter.ColorKey
     _color_key_prop_sep = lambda self, s: ColorFormatter.ColorSecondary
-    _color_prop = lambda self, s: ColorFormatter.ColorSecondary
+    _color_prop = None
     _color_prop_title = lambda self, s: ColorFormatter.ColorClearly
     def _color_prop_type(self, s):
         if s in ColorFormatter.BuiltinValueType:

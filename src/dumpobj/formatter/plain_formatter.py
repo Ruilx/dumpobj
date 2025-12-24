@@ -110,7 +110,7 @@ class PlainFormatter(Formatter):
         s = [self._build_indent(indent)]
         self._format_header_key(key, s)
         self._format_header_props(props, attrs, s)
-        if value and (key or props):
+        if value and props:
             s.append(" ")
         self._format_header_value(value, s)
         return "".join(s)

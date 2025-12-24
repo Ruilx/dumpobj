@@ -2,8 +2,6 @@ import sys
 
 from dumpobj.formatter.color_formatter import ColorFormatter
 
-print(sys.path)
-
 from dumpobj import dump, Dump
 
 if __name__ == "__main__":
@@ -18,6 +16,7 @@ if __name__ == "__main__":
             self.b = 1+3j
             self.c = object()
             self.d = A
+            self.e = Ellipsis
 
 
     d = Dump()
