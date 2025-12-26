@@ -2,13 +2,15 @@
 from typing import Callable, Any
 
 from .base_formatter import Formatter
-from ..node import Node
+from ..node import Node, ErrorNode
 
 
 class PlainFormatter(Formatter):
     PropStringPrefix = "<"
     PropStringSuffix = ">"
     PropAttrSepString = " "
+    PropInfoStringPrefix = "*"
+    PropInfoStringSuffix = ""
 
     def __init__(self):
         super().__init__()
@@ -18,6 +20,7 @@ class PlainFormatter(Formatter):
         self.indent_tree = "+-- "
         self.key_prop_sep = " = "
         self.prop_attr_kv_sep = "="
+        self.prop_value_sep = " "
 
     def set_indent_len(self, indent_len: int):
         self.indent_len = indent_len
@@ -111,6 +114,22 @@ class PlainFormatter(Formatter):
         self._format_header_key(key, s)
         self._format_header_props(props, attrs, s)
         if value and props:
-            s.append(" ")
+            s.append(self.prop_value_sep)
+        self._format_header_value(value, s)
+        return "".join(s)
+
+    def _format_header_error(self, props: str, attrs: str, s: list):
+        if props:
+            s.append(f"{self.PropInfoStringPrefix}{props}")
+            if attrs:
+                s.append(f" {attrs}")
+            s.append(f"{self.PropInfoStringSuffix}")
+
+    def _format_error(self, key: str, props: str, attrs: str, value: str, indent: int, context: dict[str, Any]):
+        s = [self._build_indent(indent)]
+        self._format_header_key(key, s)
+        self._format_header_error(props, attrs, s)
+        if value and props:
+            s.append(self.prop_value_sep)
         self._format_header_value(value, s)
         return "".join(s)

@@ -4,8 +4,11 @@ from itertools import islice
 from typing import Callable, Optional
 
 from .formatter.base_formatter import Formatter
-from .node import Node
+from .node import Node, ErrorNode
 from ._helper import str_escape, NumberType, ContainerType
+
+class NoMatchHandler(Exception):
+    ...
 
 class Dump(object):
     """
@@ -16,7 +19,7 @@ class Dump(object):
     Usage:
     ``` python
     d = Dump()
-    d.set_in_detail(True)
+    d.set_inline(True)
     d.head_count = 100
     pf = PlainFormatter()
     d.set_formatter(pf)
@@ -50,7 +53,7 @@ class Dump(object):
     }
 
     def __init__(self):
-        self.in_detail = False
+        self.inline = False
 
         self.handles: dict[type, Callable[[Node, object, int], Node]] = {
             dict: self._dump_dict,
@@ -143,6 +146,14 @@ class Dump(object):
         self.formatter: Optional[Formatter] = None
 
     def _check_obj_is_new(self, obj: object):
+        """
+        If there is a circular reference, the method can no longer be scanned to avoid infinite loops.
+        Value objects are not recorded.
+        :param obj: target object
+        :type obj: object
+        :return: True if it is a new object
+        :rtype: bool
+        """
         if isinstance(obj, self.value_types):
             # 值对象不做记录处理。
             return True
@@ -152,13 +163,16 @@ class Dump(object):
             self.id_table[id(obj)] = obj
             return True
 
-    def set_in_detail(self, in_detail: bool):
+    def set_inline(self, inline: bool):
         """
-        是否使用树形优美打印方案，将会单独处理dict、list等带有特殊str的描述的内容。
-        :param in_detail: bool
+        Controls whether to use tree-style detailed printing. Dicts, lists, and other objects with special string representations are handled separately.
+        :param inline: bool
         :return: None
         """
-        self.in_detail = in_detail
+        self.inline = inline
+
+    def get_inline(self):
+        return self.inline
 
     def set_head_count(self, head_count: int):
         self.head_count = head_count
@@ -189,7 +203,7 @@ class Dump(object):
 
     def _get_attrs(self, t: type, obj: object) -> dict[str, str]:
         if t not in self.attr_config:
-            return {'noattr': ""}
+            return {}
         # return dict(map(lambda d, (d[0], d[1](obj) if callable(d[1]) else str(d[1])), self.attr_config[t].items()))
         return {k: v(obj) if callable(v) else v for k, v in self.attr_config[t].items()}
 
@@ -218,7 +232,7 @@ class Dump(object):
     def _dump_dict(self, node: Node, obj: dict, depth: int = 0):
         rest_len = obj.__len__() - self.head_count
         node.set_prop("type", "dict")
-        if self.in_detail:
+        if not self.inline:
             node.set_attrs(self._get_attrs(dict, obj))
             if self.depth is not None and depth <= self.depth:
                 for index, (key, value) in enumerate(obj.items()):
@@ -240,15 +254,14 @@ class Dump(object):
         rest_len = obj.__len__() - self.head_count
         t = obj.__class__
         node.set_prop("type", t.__name__)
-        if self.in_detail:
+        if not self.inline:
             node.set_attrs(self._get_attrs(t, obj))
             if self.depth is not None and depth <= self.depth:
                 for index, value in enumerate(obj):
                     if self._check_head_count(index):
                         child_node = Node()
                         child_node.set_key(f"[{index}]")
-                        self._dump(child_node, value, depth + 1)
-                        node.append_node(child_node)
+                        node.append_node(self._dump(child_node, value, depth + 1))
                     else:
                         more_node = Node()
                         more_node.set_prop("type", f"More {rest_len} items...")
@@ -331,6 +344,12 @@ class Dump(object):
                 break
         return node
 
+    def _match_mro(self, obj: object):
+        for mro_item in obj.__class__.__mro__:
+            if self.handles.__contains__(mro_item):
+                return self.handles[mro_item]
+        raise NoMatchHandler()
+
     def _dump(self, node: Node, obj: object, depth: int) -> Node:
         if not self._check_obj_is_new(obj):
             if self.str_if_recur is Ellipsis:
@@ -340,14 +359,14 @@ class Dump(object):
             else:
                 node.set_prop("type", obj.__class__.__name__)
                 node.set_attr("Ref@", self._get_object_id(obj))
-        for mro_item in obj.__class__.__mro__:
-            if self.handles.__contains__(mro_item):
-                self.handles[mro_item](node, obj, depth)
-                break
-        else:
+        try:
+            self._match_mro(obj)(node, obj, depth)
+        except NoMatchHandler:
             node.set_prop("title", self._get_obj_class_str(obj))
             node.set_prop("type", "object")
             node.set_attrs(self._get_attrs(object, obj))
+        except BaseException as e:
+            node = ErrorNode(e)
         return node
 
     def dump_raw(self, obj: object) -> Node:

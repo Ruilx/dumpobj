@@ -77,3 +77,24 @@ class Node(object):
 
     def get_parent(self):
         return self.parent
+
+class ErrorNode(Node):
+    def __init__(self, exception: BaseException):
+        super().__init__()
+        self.exception: Optional[Exception] = None
+        self.props['title'] = "[ERROR]"
+        self.set_exception(exception)
+
+    def set_exception(self, exception: BaseException):
+        self.exception = exception
+        prop_type = []
+        exception_class = exception.__class__
+        if exception_class.__module__ == 'builtins' and exception_class.__flags__ & 8388608:
+            prop_type.extend((exception_class.__module__, '.'))
+        prop_type.append(exception.__class__.__qualname__)
+        self.props['type'] = "".join(prop_type)
+        if exception.__str__():
+            self.attrs['__str__'] = exception.__str__()
+
+    def get_exception(self):
+        return self.exception

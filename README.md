@@ -31,10 +31,10 @@ obj = {
 
 # Build a tree
 d = Dump()
-d.set_in_detail(True)          # detailed tree with children; False -> compact one-line summaries
-d.set_head_count(3)            # print only the first 3 items in containers/strings
-d.set_depth(5)                 # traverse at most 5 levels
-d.set_str_if_recur("<recur>") # customize how to mark recursion; or use Ellipsis
+d.set_inline(True)  # detailed tree with children; False -> compact one-line summaries
+d.set_head_count(3)  # print only the first 3 items in containers/strings
+d.set_depth(5)  # traverse at most 5 levels
+d.set_str_if_recur("<recur>")  # customize how to mark recursion; or use Ellipsis
 
 root = d.dump(obj)
 
@@ -94,7 +94,7 @@ Handled types (by default):
 - BaseException, type, object (generic fallback)
 
 Key methods and properties:
-- set_in_detail(in_detail: bool):
+- set_inline(in_detail: bool):
   - True: build a full tree with children for containers/objects
   - False: store a compact summary string in `value` for many types
 - set_head_count(n: int): limit items/characters per container/string; default 100
@@ -182,7 +182,7 @@ from dumpobj._dumpobj import Dump
 from dumpobj.formatter.plain_formatter import PlainFormatter
 
 obj = {"a": [1,2,3,4], "b": "ABCDEFG"}
-d = Dump(); d.set_in_detail(True); d.set_head_count(3)
+d = Dump(); d.set_inline(True); d.set_head_count(3)
 for line in PlainFormatter().render(d.dump(obj)):
     print(line)
 PY

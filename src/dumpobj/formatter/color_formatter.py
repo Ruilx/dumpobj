@@ -15,6 +15,8 @@ class ColorFormatter(PlainFormatter):
     ColorBuiltinOtherType = colortty().set(color.cyan())
     ColorUsersType = colortty().set(color.blue())
     ColorExceptionType = colortty().set(color.red(lighter=True))
+    ColorWarning = colortty().set(color.black()).set(background_color.yellow())
+    ColorCritical = colortty().set(color.white(lighter=True)).set(background_color.red(lighter=True))
 
     BuiltinValueType = {"int", "float", "complex", "list", "dict", "set", "frozenset", "bool", "set", "slice", "property", "map", "str", "tuple", "type", "zip"}
 
@@ -27,6 +29,7 @@ class ColorFormatter(PlainFormatter):
             "prop": self._color_prop,
             "prop_string_prefix": None,
             "prop_string_suffix": None,
+            "error": self._color_error,
             "prop_title": self._color_prop_title,
             "prop_type": self._color_prop_type,
             "prop_ref": self._color_prop_ref,
@@ -88,6 +91,7 @@ class ColorFormatter(PlainFormatter):
     _color_key = lambda self, s: ColorFormatter.ColorKey
     _color_key_prop_sep = lambda self, s: ColorFormatter.ColorSecondary
     _color_prop = None
+    _color_error = lambda self, s: ColorFormatter.ColorCritical
     _color_prop_title = lambda self, s: ColorFormatter.ColorClearly
     def _color_prop_type(self, s):
         if s in ColorFormatter.BuiltinValueType:
@@ -130,6 +134,14 @@ class ColorFormatter(PlainFormatter):
         super()._format_header_props(props, attrs, ss)
         if ss:
             s.append(self._render_color("prop", "".join(ss)))
+        else:
+            s.extend(ss)
+
+    def _format_header_error(self, props: str, attrs: str, s: list):
+        ss = []
+        super()._format_header_error(props, attrs, ss)
+        if ss:
+            s.append(self._render_color("error", "".join(ss)))
         else:
             s.extend(ss)
 

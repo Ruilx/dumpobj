@@ -31,10 +31,10 @@ obj = {
 
 # 构建树
 d = Dump()
-d.set_in_detail(True)          # True：以树展开明细；False：对许多类型仅输出一行摘要
-d.set_head_count(3)            # 对容器/字符串仅输出前 3 项/字符
-d.set_depth(5)                 # 最多向下遍历 5 层
-d.set_str_if_recur("<recur>") # 自定义循环引用的标记；也可用 Ellipsis
+d.set_inline(True)  # True：以树展开明细；False：对许多类型仅输出一行摘要
+d.set_head_count(3)  # 对容器/字符串仅输出前 3 项/字符
+d.set_depth(5)  # 最多向下遍历 5 层
+d.set_str_if_recur("<recur>")  # 自定义循环引用的标记；也可用 Ellipsis
 
 root = d.dump(obj)
 
@@ -94,7 +94,7 @@ Node 字段：
 - BaseException、type、object（通用兜底）
 
 主要方法与属性：
-- set_in_detail(in_detail: bool)：
+- set_inline(in_detail: bool)：
   - True：为容器/对象构建完整子树
   - False：许多类型仅存储一行摘要到 `value`
 - set_head_count(n: int)：限制每个容器/字符串的项目数/字符数；默认 100
@@ -182,7 +182,7 @@ from dumpobj._dumpobj import Dump
 from dumpobj.formatter.plain_formatter import PlainFormatter
 
 obj = {"a": [1,2,3,4], "b": "ABCDEFG"}
-d = Dump(); d.set_in_detail(True); d.set_head_count(3)
+d = Dump(); d.set_inline(True); d.set_head_count(3)
 for line in PlainFormatter().render(d.dump(obj)):
     print(line)
 PY

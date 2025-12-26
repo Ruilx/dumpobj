@@ -5,21 +5,33 @@ from dumpobj.formatter.color_formatter import ColorFormatter
 from dumpobj import dump, Dump
 
 if __name__ == "__main__":
-    class A(object):
-        class B:
-            ...
-
-        Prop1 = 1
+    class A:
+        PROP1 = "abc"
+        PROP2 = [12, 34, 56]
+        PROP3 = {"a": 1, "b": 2}
 
         def __init__(self):
-            self.a = 1
-            self.b = 1+3j
-            self.c = object()
-            self.d = A
-            self.e = Ellipsis
+            self.member1 = 1
+            self.member2 = 2 + 3j
+            self.member3 = "ABCDEFG"
+            self.member4 = object()
+            self.member5 = [5, 6, 7, 8]
+            self.member6 = (5, 6, 7, 8)
+            self.member7 = lambda x: x
+            self.member8 = type
+            self.member9 = range(100)
 
+        class B:
+            class C:
+                PROP = "Hello, World!"
+
+        PROP = B()
+
+    b = {A(), }
 
     d = Dump()
+    d.set_inline(False)
+    d.head_count = 100
     d.set_formatter(ColorFormatter())
-    for i in d.dump(A()):
-        print(i)
+    for l in d.dump(b):
+        print(l)

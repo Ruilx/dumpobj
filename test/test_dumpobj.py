@@ -13,7 +13,7 @@ class TestDumpObj(unittest.TestCase):
         return list(PlainFormatter().render(node))
 
     def test_dump_basic_dict_detail(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         self.dump.set_head_count(3)
         obj = {"a": [1, 2, 3, 4], "b": "ABCDEFG"}
         node = self.dump.dump_raw(obj)
@@ -29,7 +29,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any("(more" in line for line in lines))
 
     def test_dump_compact_mode(self):
-        self.dump.set_in_detail(False)
+        self.dump.set_inline(False)
         self.dump.set_head_count(2)
         obj = [1, 2, 3, 4]
         node = self.dump.dump_raw(obj)
@@ -39,7 +39,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any("and more" in line for line in lines))
 
     def test_depth_limit(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         self.dump.set_head_count(10)
         self.dump.set_depth(1)
         obj = {"nested": {"x": 1, "y": 2}}
@@ -51,7 +51,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any(line.strip().startswith("+-- x = ") for line in lines))
 
     def test_recursion_mark_ellipsis(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         self.dump.set_head_count(10)
         self.dump.set_depth(5)
         self.dump.set_str_if_recur(Ellipsis)
@@ -63,7 +63,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any(line.strip().startswith("+-- ... = ") for line in lines))
 
     def test_recursion_mark_string(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         self.dump.set_head_count(10)
         self.dump.set_depth(5)
         self.dump.set_str_if_recur("<recur>")
@@ -74,7 +74,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any(line.strip().startswith("+-- <recur> = ") for line in lines))
 
     def test_recursion_mark_default_ref(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         self.dump.set_head_count(10)
         self.dump.set_depth(5)
         self.dump.set_str_if_recur(None)
@@ -90,7 +90,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(found)
 
     def test_none_and_ellipsis(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         node_none = self.dump.dump_raw(None)
         node_ellipsis = self.dump.dump_raw(...)
         lines_none = self.render_lines(node_none)
@@ -99,7 +99,7 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(any(line.endswith(" ...") for line in lines_ellipsis))
 
     def test_exception_dump(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         try:
             raise ValueError("bad")
         except ValueError as e:
@@ -110,7 +110,7 @@ class TestDumpObj(unittest.TestCase):
             self.assertTrue(any("msg=" in line for line in lines))
 
     def test_type_dump(self):
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         node = self.dump.dump_raw(dict)
         lines = self.render_lines(node)
         # Title 'class' and type with module-qualified name
@@ -122,7 +122,7 @@ class TestDumpObj(unittest.TestCase):
                 self.a = 1
             def bar(self):
                 return 2
-        self.dump.set_in_detail(True)
+        self.dump.set_inline(True)
         node = self.dump.dump_raw(Foo())
         lines = self.render_lines(node)
         # Should list 'a' and 'bar', but not show double-underscore magic in children

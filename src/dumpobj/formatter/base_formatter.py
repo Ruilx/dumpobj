@@ -2,7 +2,7 @@
 import abc
 from typing import Generator, Optional, Any
 
-from ..node import Node
+from ..node import Node, ErrorNode
 
 
 class Formatter(metaclass=abc.ABCMeta):
@@ -31,6 +31,10 @@ class Formatter(metaclass=abc.ABCMeta):
     def _format_header(self, key: str, props: str, attrs: str, value: str, indent: int, context: dict[str, Any]):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def _format_error(self, key: str, props: str, attrs: str, value: str, indent: int, context: dict[str, Any]):
+        raise NotImplementedError
+
     def _pre_node(self, node: Node, context: dict[str, Any]):
         ...
 
@@ -49,7 +53,11 @@ class Formatter(metaclass=abc.ABCMeta):
         props = self._format_props(node)
         attrs = self._format_attrs(node)
         value = self._format_value(node)
-        yield self._format_header(key, props, attrs, value, indent, context)
+        if isinstance(node, ErrorNode):
+            yield self._format_error(key, props, attrs, value, indent, context)
+        else:
+            yield self._format_header(key, props, attrs, value, indent, context)
+
         if node.children.__len__() > 0:
             for child_node in node.iter_children():
                 yield from self._format_node(child_node, indent + 1, context)
