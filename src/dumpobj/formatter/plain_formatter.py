@@ -9,8 +9,8 @@ class PlainFormatter(Formatter):
     PropStringPrefix = "<"
     PropStringSuffix = ">"
     PropAttrSepString = " "
-    PropInfoStringPrefix = "*"
-    PropInfoStringSuffix = ""
+    PropInfoStringPrefix = "<"
+    PropInfoStringSuffix = ">"
 
     def __init__(self):
         super().__init__()

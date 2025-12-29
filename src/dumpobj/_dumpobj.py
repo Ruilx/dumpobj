@@ -366,7 +366,11 @@ class Dump(object):
             node.set_prop("type", "object")
             node.set_attrs(self._get_attrs(object, obj))
         except BaseException as e:
+            key = node.get_key()
             node = ErrorNode(e)
+            if key is not None:
+                node.set_key(key)
+            node.set_prop("title", self._get_obj_class_str(obj))
         return node
 
     def dump_raw(self, obj: object) -> Node:

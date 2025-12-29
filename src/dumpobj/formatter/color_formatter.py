@@ -105,7 +105,7 @@ class ColorFormatter(PlainFormatter):
             return ColorFormatter.ColorUsersType
 
     _color_prop_ref = lambda self, s: ColorFormatter.ColorSecondary
-    _color_prop_attr_key = lambda self, s: ColorFormatter.ColorClearly
+    _color_prop_attr_key = lambda self, s: ColorFormatter.ColorSecondary
     _color_prop_attr_kv_sep = lambda self, s: ColorFormatter.ColorSecondary
     _color_prop_attr_value = lambda self, s: ColorFormatter.ColorClearly
 
@@ -114,14 +114,14 @@ class ColorFormatter(PlainFormatter):
 
     def _format_props(self, node: Node) -> str:
         title_str = self._render_color("prop_title", node.get_prop("title"))
-        type_str = self._render_color("prop_type", node.get_prop("type"))
+        type_str = self._render_color("error" if isinstance(node, Node) else "prop_type", node.get_prop("type"))
         return ColorFormatter._format_props_title_and_type(title_str, type_str)
 
     def _format_attrs(self, node: Node) -> str:
         s = []
         for k, v in node.get_attrs().items():
             key = self._render_color("prop_attr_key", self._attr_adjust_name(k))
-            sep = self._render_color("prop_attr_kv_sep", self.prop_attr_kv_sep)
+            sep = self.prop_attr_kv_sep
             val = self._render_color("prop_attr_value", v.__str__())
             s.append(f"{key}{sep}{val}")
         return " ".join(s)
@@ -141,7 +141,7 @@ class ColorFormatter(PlainFormatter):
         ss = []
         super()._format_header_error(props, attrs, ss)
         if ss:
-            s.append(self._render_color("error", "".join(ss)))
+            s.append(self._render_color("prop", "".join(ss)))
         else:
             s.extend(ss)
 

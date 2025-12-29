@@ -11,28 +11,30 @@ class Formatter(metaclass=abc.ABCMeta):
             "attr_key_rename": {}
         }
 
+    # str | Any 指的是原则上返回str，但如果需要自定义的话，可以接受返回任意类型的数据，但最终要自行判断并调整回str
+
     @abc.abstractmethod
-    def _format_key(self, node: Node) -> str:
+    def _format_key(self, node: Node) -> str | Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _format_props(self, node: Node) -> str:
+    def _format_props(self, node: Node) -> str | Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _format_attrs(self, node: Node) -> str:
+    def _format_attrs(self, node: Node) -> str | Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _format_value(self, node: Node) -> str:
+    def _format_value(self, node: Node) -> str | Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _format_header(self, key: str, props: str, attrs: str, value: str, indent: int, context: dict[str, Any]):
+    def _format_header(self, key: str | Any, props: str | Any, attrs: str | Any, value: str | Any, indent: int, context: dict[str, Any]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _format_error(self, key: str, props: str, attrs: str, value: str, indent: int, context: dict[str, Any]):
+    def _format_error(self, key: str | Any, props: str | Any, attrs: str | Any, value: str | Any, indent: int, context: dict[str, Any]):
         raise NotImplementedError
 
     def _pre_node(self, node: Node, context: dict[str, Any]):

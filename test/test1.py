@@ -27,9 +27,17 @@ if __name__ == "__main__":
 
         PROP = B()
 
-    b = {A(), }
+    def handle_A(node, obj: A, depth: int):
+        raise RuntimeError("Custom handler error for testing.")
+
+    from colortty import ColorTTY
+
+    #ColorTTY.EscapeChar = r'\e'
+
+    b = [A()]
 
     d = Dump()
+    d.register_handle(A, handle_A)
     d.set_inline(False)
     d.head_count = 100
     d.set_formatter(ColorFormatter())
