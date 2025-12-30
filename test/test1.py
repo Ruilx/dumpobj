@@ -4,6 +4,8 @@ from dumpobj.formatter.color_formatter import ColorFormatter
 
 from dumpobj import dump, Dump
 
+from dumpobj.formatter.json_formatter import JSONFormatter
+
 if __name__ == "__main__":
     class A:
         PROP1 = "abc"
@@ -34,12 +36,12 @@ if __name__ == "__main__":
 
     #ColorTTY.EscapeChar = r'\e'
 
-    b = [A()]
+    b = [1,[2],3]
 
     d = Dump()
-    d.register_handle(A, handle_A)
+    #d.register_handle(A, handle_A)
     d.set_inline(False)
     d.head_count = 100
-    d.set_formatter(ColorFormatter())
+    d.set_formatter(JSONFormatter())
     for l in d.dump(b):
         print(l)

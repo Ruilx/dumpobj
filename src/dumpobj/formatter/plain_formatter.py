@@ -80,9 +80,6 @@ class PlainFormatter(Formatter):
         type_str = node.get_prop("type")
         return PlainFormatter._format_props_title_and_type(title_str, type_str)
 
-    def _attr_adjust_name(self, attr_key_name):
-        return self.config['attr_key_rename'][attr_key_name] if attr_key_name in self.config['attr_key_rename'] else attr_key_name
-
     def _format_attrs(self, node: Node) -> str:
         s = []
         for k, v in node.get_attrs().items():

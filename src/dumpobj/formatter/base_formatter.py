@@ -11,6 +11,9 @@ class Formatter(metaclass=abc.ABCMeta):
             "attr_key_rename": {}
         }
 
+    def _attr_adjust_name(self, attr_key_name):
+        return self.config['attr_key_rename'][attr_key_name] if attr_key_name in self.config['attr_key_rename'] else attr_key_name
+
     # str | Any 指的是原则上返回str，但如果需要自定义的话，可以接受返回任意类型的数据，但最终要自行判断并调整回str
 
     @abc.abstractmethod
