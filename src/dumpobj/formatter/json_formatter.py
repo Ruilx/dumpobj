@@ -50,6 +50,8 @@ class JSONFormatter(Formatter):
 
     def _format_node(self, node: Node, indent: int, context: dict[str, Any]):
         self._pre_node(node, context=context)
+        parent_container = context['parent']
+
         key = self._format_key(node)
         props = self._format_props(node)
         attrs = self._format_attrs(node)
@@ -58,16 +60,20 @@ class JSONFormatter(Formatter):
             self._format_error(key, props, attrs, value, indent, context)
         else:
             self._format_header(key, props, attrs, value, indent, context)
-        context['parent'] = context['parent'][key]
+        current = parent_container[key]
+
         if node.children.__len__() > 0:
-            current = context['parent']
             children_container = current.setdefault('children', {})
-            prev_parent = context['parent']
-            context['parent'] = children_container
             for child_node in node.iter_children():
+                context['parent'] = children_container
                 self._format_node(child_node, indent + 1, context)
-            context['parent'] = prev_parent
+
+        # 在 post 钩子里让 parent 指向当前节点字典
+        context['parent'] = current
         self._post_node(node, context)
+
+        # 返回给上层时恢复为父容器，确保兄弟节点写入同一 children
+        context['parent'] = parent_container
 
     def _render(self, node: Node) -> Generator[Any, Any, None]:
         json_root = {}
