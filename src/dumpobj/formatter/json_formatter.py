@@ -85,7 +85,7 @@ class JSONFormatter(Formatter):
         if pre:
             yield pre
         self._format_node(node, 0, context)
-        yield json.dumps(context['root'], ensure_ascii=self.config['ensure_ascii'], indent=0 if self.config['compact'] else self.config['indent'])
+        yield json.dumps(context['root'][''], ensure_ascii=self.config['ensure_ascii'], indent=0 if self.config['compact'] else self.config['indent'])
         post = self._post_render(node, context)
         if post:
             yield post

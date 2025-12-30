@@ -62,7 +62,7 @@ __pycache__/
 !lib/*.pyd
 
 # Python egg-info
-colortty.egg-info
+*.egg-info
 
 # python build dist files
 dist
