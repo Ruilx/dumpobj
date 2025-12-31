@@ -2,9 +2,9 @@
 
 一个用于以结构化树形方式查看并美观打印 Python 对象的小工具。
 
-它会遍历对象，构建一个中立的 Node 树（key/props/attrs/value/children），再通过可插拔的格式化器进行渲染（内置了一个纯文本格式化器）。
+它会遍历对象，构建一个中立的 Node 树（key/props/attrs/value/children），再通过可插件化的格式化器进行渲染（内置了一个纯文本格式化器）。
 
-- 无第三方依赖，Python 3.11+
+- 无第三方依赖，Python 3.10+
 - 支持内置容器、原始类型、类、实例、异常、以及省略号 Ellipsis
 - 支持控制遍历深度、每类项目数量上限、循环引用处理
 - 支持注册自定义类型处理器
@@ -15,7 +15,7 @@
 pip install dumpobj
 ```
 
-需要 Python 3.11 及以上版本。
+需要 Python 3.10 及以上版本。
 
 ## 快速上手
 
@@ -141,8 +141,8 @@ Node 字段：
 
 ```python
 pf = PlainFormatter()
-pf.config["attr_key_rename"] = {"@": "@"}
-for line in pf.render(d.dump(obj)):
+pf.config["attr_key_rename"] = {"@": "at"}
+for line in pf.render(d.dump_raw(obj)):
     print(line)
 ```
 
@@ -163,25 +163,6 @@ def dump_datetime(node: Node, obj: datetime, depth: int) -> Node:
     return node
 
 d.register_handle(datetime, dump_datetime)
-```
-
-## 开发
-
-- 需要 Python 3.11+
-- 项目元数据见 `pyproject.toml`
-
-快速自检：
-
-```
-python - <<"PY"
-from dumpobj._dumpobj import Dump
-from dumpobj.formatter.plain_formatter import PlainFormatter
-
-obj = {"a": [1,2,3,4], "b": "ABCDEFG"}
-d = Dump(); d.set_inline(True); d.set_head_count(3)
-for line in PlainFormatter().render(d.dump(obj)):
-    print(line)
-PY
 ```
 
 ## 许可证

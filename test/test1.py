@@ -42,11 +42,17 @@ if __name__ == "__main__":
         "a": [1, 2, 3, 4, 5],
         "b": "ABCDEFG",
         "c": {"x": 1, "y": 2},
+        "d": Ellipsis,
+        "e": None,
     }
+
+    b['ref'] = b['a']
+    b['a'].append(b['c'])
+    b['c']['a'] = b['ref']
 
     d = Dump()
     #d.register_handle(A, handle_A)
-    d.set_inline(False)
+    d.set_inline(True)
     d.head_count = 100
     d.set_formatter(PlainFormatter())
     for l in d.dump(b):

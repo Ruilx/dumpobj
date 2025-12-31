@@ -2,9 +2,9 @@
 
 A tiny utility to introspect and pretty-print Python objects as a structured tree.
 
-It walks an object, builds a neutral Node tree (key/props/attrs/value/children), and lets you render it with pluggable formatters (a plain-text formatter is included).
+It walks an object, builds a neutral Node tree (key/props/attrs/value/children), and lets you render it with pluggable formatters (plain, color, json).
 
-- Zero dependencies, Python 3.11+
+- Zero dependencies, Python 3.10+
 - Handles built-in containers, primitives, classes, instances, exceptions, and ellipsis
 - Controls for depth, item count limits, and recursion handling
 - Hook to register custom type handlers
@@ -15,12 +15,12 @@ It walks an object, builds a neutral Node tree (key/props/attrs/value/children),
 pip install dumpobj
 ```
 
-Requires Python 3.11 or above.
+Requires Python 3.10 or above.
 
 ## Quick start
 
 ```python
-from dumpobj._dumpobj import Dump
+from dumpobj import Dump
 from dumpobj.formatter.plain_formatter import PlainFormatter
 
 obj = {
@@ -29,35 +29,43 @@ obj = {
     "c": {"x": 1, "y": 2},
 }
 
-# Build a tree
+# Configure
 d = Dump()
-d.set_inline(True)  # detailed tree with children; False -> compact one-line summaries
-d.set_head_count(3)  # print only the first 3 items in containers/strings
-d.set_depth(5)  # traverse at most 5 levels
-d.set_str_if_recur("<recur>")  # customize how to mark recursion; or use Ellipsis for default
+d.set_inline(True)      # detailed tree with children; False -> compact summaries
+d.set_head_count(3)     # print only the first 3 items in containers/strings
+d.set_depth(5)          # traverse at most 5 levels
+d.set_str_if_recur("<recur>")  # or Ellipsis for default
 
-print(d.dump(obj))
+# Choose a formatter (optional; default is PlainFormatter)
+d.set_formatter(PlainFormatter())
+
+# Print directly — dump() returns a generator of lines/items
+for line in d.dump(obj):
+    print(line)
+
+# If you need the raw Node tree for advanced processing:
+node = d.dump_raw(obj)
 ```
 
-Example output (addresses omitted):
+### Use JSON output
 
-```
-<dict @=<any memory address> __len__=3 __sizeof__=168>
-+-- a = <list @=<any memory address> __len__=5 __sizeof__=88>
-    +-- [0] = <int @=<any memory address> __sizeof__=28> 1
-    +-- [1] = <int @=<any memory address> __sizeof__=28> 2
-    +-- [2] = <int @=<any memory address> __sizeof__=28> 3
-    +-- [3] = <int @=<any memory address> __sizeof__=28> 4
-    +-- [4] = <int @=<any memory address> __sizeof__=28> 5
-+-- b = <str @=<any memory address> __len__=7 __sizeof__=48> ABCDEFG
-+-- c = <dict @=<any memory address> __len__=2 __sizeof__=168>
-    +-- x = <int @=<any memory address> __sizeof__=28> 1
-    +-- y = <int @=<any memory address> __sizeof__=28> 2
+```python
+from dumpobj import Dump
+from dumpobj.formatter.json_formatter import JSONFormatter
+
+obj = {"a": 1, "b": [1, 2, 3]}
+
+d = Dump()
+d.set_formatter(JSONFormatter())
+
+for chunk in d.dump(obj):
+    print(chunk)  # prints a JSON string of the object structure
 ```
 
 Notes:
 - The plain formatter prints a lightweight tree. You can implement your own formatter by subclassing `Formatter`.
 - "More N items..." indicates truncated content when `head_count` is reached.
+- `dump_raw(obj)` returns the intermediate `Node` tree without rendering.
 
 ## Concepts and data model
 
@@ -103,7 +111,8 @@ Key methods and properties:
   - None: adds a Ref@ attr pointing to the already-seen object id
 - get_str_if_recur() -> str | Ellipsis | None
 - register_handle(t: type, handle: Callable[[Node, object, int], Node]): add/override type handlers
-- dump(obj: object) -> Node: start a new dump pass and return the root node
+- dump_raw(obj: object) -> Node: start a new dump pass and return the root node
+- dump(obj: object) -> Generator[Any, Any, None]: render via the configured formatter, yielding printable lines/items
 
 Attributes collected per type are controlled by an internal `attr_config`. For example, containers and strings include `@`, `__len__`, and `__sizeof__`.
 
@@ -127,7 +136,7 @@ Accessor methods:
 - append_node(iter_children): tree building helpers
 - set_parent/get_parent
 
-### Formatter and PlainFormatter
+### Formatter, PlainFormatter, JSONFormatter
 
 - Base class: `dumpobj.formatter.base_formatter.Formatter`
   - Override `_format_key/_format_props/_format_attrs/_format_value/_format_header`
@@ -136,23 +145,28 @@ Accessor methods:
 - Plain implementation: `dumpobj.formatter.plain_formatter.PlainFormatter`
   - Config: `attr_key_rename` dict can rename attribute keys in output
   - Indentation: 4 spaces per level, with `+--` tree markers
+- JSON implementation: `dumpobj.formatter.json_formatter.JSONFormatter`
+  - Config: `compact`, `indent`, `ensure_ascii`
+  - Produces a JSON string representing the object structure
 
 Example: Rename the "@" attribute key to "@":
 
 ```python
 pf = PlainFormatter()
 pf.config["attr_key_rename"] = {"@": "@"}
-for line in pf.render(d.dump(obj)):
+for line in pf.render(Dump().dump_raw(obj)):
     print(line)
 ```
 
-## Custom handlers
+## Custom handlers and error handling
 
 You can override how a type is dumped by registering a handler. Handlers receive the current `Node`, the object, and the current depth, and should mutate/return the node.
 
+If a user-defined handler raises an exception, it’s captured and represented as an `ErrorNode` in the output.
+
 ```python
 from datetime import datetime
-from dumpobj._dumpobj import Dump
+from dumpobj import Dump
 from dumpobj.node import Node
 
 d = Dump()
@@ -163,25 +177,6 @@ def dump_datetime(node: Node, obj: datetime, depth: int) -> Node:
     return node
 
 d.register_handle(datetime, dump_datetime)
-```
-
-## Development
-
-- Python 3.11+
-- Project metadata in `pyproject.toml`
-
-Run a quick smoke:
-
-```
-python - <<"PY"
-from dumpobj._dumpobj import Dump
-from dumpobj.formatter.plain_formatter import PlainFormatter
-
-obj = {"a": [1,2,3,4], "b": "ABCDEFG"}
-d = Dump(); d.set_inline(True); d.set_head_count(3)
-for line in PlainFormatter().render(d.dump(obj)):
-    print(line)
-PY
 ```
 
 ## License

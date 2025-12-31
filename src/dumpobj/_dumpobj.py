@@ -18,12 +18,20 @@ class Dump(object):
 
     Usage:
     ``` python
+    from dumpobj import Dump
+    from dumpobj.formatter.plain_formatter import PlainFormatter
+
     d = Dump()
     d.set_inline(True)
     d.head_count = 100
-    pf = PlainFormatter()
-    d.set_formatter(pf)
-    d.dump()
+    d.set_formatter(PlainFormatter())
+
+    # Render and print directly via dump(); no need to call formatter.render()
+    for line in d.dump({"a": 1, "b": [1, 2, 3]}):
+        print(line)
+
+    # If you need the raw Node tree:
+    node = d.dump_raw({"a": 1, "b": [1, 2, 3]})
     ```
     """
 
@@ -359,6 +367,7 @@ class Dump(object):
             else:
                 node.set_prop("type", obj.__class__.__name__)
                 node.set_attr("Ref@", self._get_object_id(obj))
+            return node
         try:
             self._match_mro(obj)(node, obj, depth)
         except NoMatchHandler:

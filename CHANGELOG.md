@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## [0.1.1] - 2025-12-31
+### Changed
+- Bumped version to 0.1.1.
+- Python compatibility clarified as Python 3.10+.
+- Formatter usage embedded into the `dump` function; callers no longer need to call `formatter.render` directly.
+
+### Added
+- Introduced `dump_raw(obj)` returning a `Node` tree for advanced use.
+- User-defined handlers’ exceptions are now captured and printed as `ErrorNode` with message.
+- Native `JSONFormatter` to render debug output in JSON format.
+
+### Migration
+- The former `dump(obj)` convenience now returns a generator of printable lines/items; for raw tree access, use `dump_raw(obj)`.
+
 ## [0.1.0] - 2025-12-31
 ### Added
 - Initial public release of `dumpobj`.
@@ -25,7 +39,8 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - Lazy top-level exports of `Dump` and `dump` in the `dumpobj` package to avoid unnecessary imports.
 
 ### Notes
-- Requires Python 3.11+.
+- Requires Python 3.10+.
 - Zero third-party runtime dependencies.
 
+[0.1.1]: https://github.com/Ruilx/dumpobj/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Ruilx/dumpobj/releases/tag/v0.1.0
