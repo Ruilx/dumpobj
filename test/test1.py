@@ -6,6 +6,8 @@ from dumpobj import dump, Dump
 
 from dumpobj.formatter.json_formatter import JSONFormatter
 
+from dumpobj.formatter.plain_formatter import PlainFormatter
+
 if __name__ == "__main__":
     class A:
         PROP1 = "abc"
@@ -36,12 +38,16 @@ if __name__ == "__main__":
 
     #ColorTTY.EscapeChar = r'\e'
 
-    b = [1,[2],3]
+    b = {
+        "a": [1, 2, 3, 4, 5],
+        "b": "ABCDEFG",
+        "c": {"x": 1, "y": 2},
+    }
 
     d = Dump()
     #d.register_handle(A, handle_A)
     d.set_inline(False)
     d.head_count = 100
-    d.set_formatter(JSONFormatter())
+    d.set_formatter(PlainFormatter())
     for l in d.dump(b):
         print(l)

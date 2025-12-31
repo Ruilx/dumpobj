@@ -34,29 +34,25 @@ d = Dump()
 d.set_inline(True)  # detailed tree with children; False -> compact one-line summaries
 d.set_head_count(3)  # print only the first 3 items in containers/strings
 d.set_depth(5)  # traverse at most 5 levels
-d.set_str_if_recur("<recur>")  # customize how to mark recursion; or use Ellipsis
+d.set_str_if_recur("<recur>")  # customize how to mark recursion; or use Ellipsis for default
 
-root = d.dump(obj)
-
-# Render it
-pf = PlainFormatter()
-for line in pf.render(root):
-    print(line)
+print(d.dump(obj))
 ```
 
 Example output (addresses omitted):
 
 ```
-<{title empty} dict>
-a = <list @=... __len__=5 __sizeof__=...>
-+-- [0] = <int @=... __sizeof__=...> 1
-+-- [1] = <int @=... __sizeof__=...> 2
-+-- [2] = <int @=... __sizeof__=...> 3
-+-- <More 2 items...>
-b = <str @=... __len__=7 __sizeof__=...> ABC...(more 4 chars)
-c = <dict @=... __len__=2 __sizeof__=...>
-+-- x = <int @=... __sizeof__=...> 1
-+-- y = <int @=... __sizeof__=...> 2
+<dict @=<any memory address> __len__=3 __sizeof__=168>
++-- a = <list @=<any memory address> __len__=5 __sizeof__=88>
+    +-- [0] = <int @=<any memory address> __sizeof__=28> 1
+    +-- [1] = <int @=<any memory address> __sizeof__=28> 2
+    +-- [2] = <int @=<any memory address> __sizeof__=28> 3
+    +-- [3] = <int @=<any memory address> __sizeof__=28> 4
+    +-- [4] = <int @=<any memory address> __sizeof__=28> 5
++-- b = <str @=<any memory address> __len__=7 __sizeof__=48> ABCDEFG
++-- c = <dict @=<any memory address> __len__=2 __sizeof__=168>
+    +-- x = <int @=<any memory address> __sizeof__=28> 1
+    +-- y = <int @=<any memory address> __sizeof__=28> 2
 ```
 
 Notes:

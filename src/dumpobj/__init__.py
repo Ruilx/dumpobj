@@ -21,7 +21,7 @@ Quick examples:
     from dumpobj import Dump
     from dumpobj.formatter.plain_formatter import PlainFormatter
     d = Dump()
-    d.set_inline(False)       # tree-style
+    d.set_inline(False)       # tree-style. Default: False
     d.set_head_count(100)     # show at most 100 items
     d.set_depth(5)            # recursion depth 5
     d.set_formatter(PlainFormatter())

@@ -36,27 +36,23 @@ d.set_head_count(3)  # 对容器/字符串仅输出前 3 项/字符
 d.set_depth(5)  # 最多向下遍历 5 层
 d.set_str_if_recur("<recur>")  # 自定义循环引用的标记；也可用 Ellipsis
 
-root = d.dump(obj)
-
-# 渲染
-pf = PlainFormatter()
-for line in pf.render(root):
-    print(line)
+print(d.dump(obj))
 ```
 
 示例输出（略去地址信息）：
 
 ```
-<{title empty} dict>
-a = <list @=... __len__=5 __sizeof__=...>
-+-- [0] = <int @=... __sizeof__=...> 1
-+-- [1] = <int @=... __sizeof__=...> 2
-+-- [2] = <int @=... __sizeof__=...> 3
-+-- <More 2 items...>
-b = <str @=... __len__=7 __sizeof__=...> ABC...(more 4 chars)
-c = <dict @=... __len__=2 __sizeof__=...>
-+-- x = <int @=... __sizeof__=...> 1
-+-- y = <int @=... __sizeof__=...> 2
+<dict @=<any memory address> __len__=3 __sizeof__=168>
++-- a = <list @=<any memory address> __len__=5 __sizeof__=88>
+    +-- [0] = <int @=<any memory address> __sizeof__=28> 1
+    +-- [1] = <int @=<any memory address> __sizeof__=28> 2
+    +-- [2] = <int @=<any memory address> __sizeof__=28> 3
+    +-- [3] = <int @=<any memory address> __sizeof__=28> 4
+    +-- [4] = <int @=<any memory address> __sizeof__=28> 5
++-- b = <str @=<any memory address> __len__=7 __sizeof__=48> ABCDEFG
++-- c = <dict @=<any memory address> __len__=2 __sizeof__=168>
+    +-- x = <int @=<any memory address> __sizeof__=28> 1
+    +-- y = <int @=<any memory address> __sizeof__=28> 2
 ```
 
 说明：
