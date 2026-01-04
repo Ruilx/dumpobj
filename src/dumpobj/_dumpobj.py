@@ -246,7 +246,7 @@ class Dump(object):
                 for index, (key, value) in enumerate(obj.items()):
                     if self._check_head_count(index):
                         child_node = Node()
-                        child_node.set_key(key)
+                        child_node.set_key(f"class {key.__qualname__}" if isinstance(key, type) else key.__str__())
                         self._dump(child_node, value, depth + 1)
                         node.append_node(child_node)
                     else:
