@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## [0.1.2] - 2026-01-05
+### Fixed
+- Prevent formatter errors when a dict key is a `type` (or other non-string) by ensuring safe key rendering. Keys of type `type` are emitted as `class <qualname>` during formatting to avoid string concatenation issues.
+
+### Notes
+- We keep raw keys in the `Node` tree to preserve formatter flexibility. Formatters should handle non-string keys robustly. This avoids premature coercion in the dumper and enables custom rendering strategies.
+
 ## [0.1.1] - 2025-12-31
 ### Changed
 - Bumped version to 0.1.1.
@@ -42,5 +49,6 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - Requires Python 3.10+.
 - Zero third-party runtime dependencies.
 
+[0.1.2]: https://github.com/Ruilx/dumpobj/releases/tag/v0.1.2
 [0.1.1]: https://github.com/Ruilx/dumpobj/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Ruilx/dumpobj/releases/tag/v0.1.0

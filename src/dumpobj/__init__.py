@@ -15,7 +15,8 @@ Key features:
 Quick examples:
 1) Simple usage:
     from dumpobj import dump
-    print(dump({"a": 1, "b": [1, 2, 3]}))
+    for line in dump({"a": 1, "b": [1, 2, 3]}):
+        print(line)
 
 2) Fine-grained control:
     from dumpobj import Dump
@@ -25,7 +26,8 @@ Quick examples:
     d.set_head_count(100)     # show at most 100 items
     d.set_depth(5)            # recursion depth 5
     d.set_formatter(PlainFormatter())
-    print(d.dump({"a": 1, "b": [1, 2, 3]}))
+    for line in d.dump({"a": 1, "b": [1, 2, 3]}):
+        print(line)
 """
 
 from typing import TYPE_CHECKING

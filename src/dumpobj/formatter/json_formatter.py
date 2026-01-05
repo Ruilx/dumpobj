@@ -16,10 +16,45 @@ class JSONFormatter(Formatter):
             'compact': False,
             'indent': 4,
             'ensure_ascii': False,
+            # Key rendering config
+            'key_show_module_for_types': True,
+            'key_omit_builtins_module': True,
+            'key_use_repr_on_error': True,
         })
 
+    def _render_type_key(self, t: type) -> str:
+        if self.config.get('key_show_module_for_types', True):
+            module = t.__module__
+            qual = t.__qualname__
+            if self.config.get('key_omit_builtins_module', True) and module == 'builtins':
+                return f"class {qual}"
+            return f"class {module}.{qual}"
+        return f"class {t.__qualname__}"
+
+    def _render_index_key(self, k: Any) -> str:
+        try:
+            tag, idx = k
+            if tag == 'index':
+                return f"[{idx}]"
+        except Exception:
+            pass
+        return str(k)
+
     def _format_key(self, node: Node) -> str:
-        return node.get_key()
+        key = node.get_key()
+        try:
+            if isinstance(key, type):
+                return self._render_type_key(key)
+            if isinstance(key, tuple):
+                return self._render_index_key(key)
+            return str(key) if key is not None else ""
+        except Exception:
+            if self.config.get('key_use_repr_on_error', True):
+                try:
+                    return repr(key)
+                except Exception:
+                    return "<unprintable key>"
+            return "<unprintable key>"
 
     def _format_props(self, node: Node) -> tuple[str, str]:
         return node.get_prop("title"), node.get_prop("type")

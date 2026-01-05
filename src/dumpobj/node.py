@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Self, Literal, Optional
+from collections.abc import Hashable
+from typing import Any, Literal, Optional
 
 '''
 <!-- Here writes Node's descriptions. -->
 
- member3 = <{TITLE} str  @=0x1b547c09a70 __sizeof__=48 __len__=7> ABCDEFG
-| KEY   |S| PROPS                                                | VALUE
-          | TITLE  |TYPE| ATTR1         | ATTR2       | ATTR3    | 
+ member3 = <{TITLE} str  @=0x0123456789ABCDEF __sizeof__=48 __len__=7> ABCDEFG
+| KEY   |S| PROPS                                                     | VALUE
+          | TITLE  |TYPE| ATTR1              | ATTR2       | ATTR3    |
 
 '''
 
@@ -15,20 +16,22 @@ class Node(object):
     PropKeys = Literal["title", "type", "attributes"]
 
     def __init__(self):
-        self.key = ""
+        self.key: Hashable = ""
         self.props = {
             "title": "",
             "type": "",
         }
         self.attrs: dict[str, Any] = {}
         self.value: Any = None
-        self.children: list[Self] = []
-        self.parent: Optional[Self] = None
+        self.children: list["Node"] = []
+        self.parent: Optional["Node"] = None
 
-    def set_key(self, key: str):
+    def set_key(self, key: Hashable):
+        if not isinstance(key, Hashable):
+            raise TypeError("Node key must be hashable (e.g., str, int, tuple, type, etc.)")
         self.key = key
 
-    def get_key(self):
+    def get_key(self) -> Hashable:
         return self.key
 
     def get_prop_keys(self):
@@ -61,7 +64,7 @@ class Node(object):
     def get_value(self):
         return self.value
 
-    def append_node(self, node: Self):
+    def append_node(self, node: "Node"):
         if node is self or (node is self.parent if self.parent else False):
             raise RuntimeError("Cannot append node itself or it's parent.")
         self.children.append(node)
@@ -70,7 +73,7 @@ class Node(object):
     def iter_children(self):
         return iter(self.children)
 
-    def set_parent(self, parent: Self):
+    def set_parent(self, parent: "Node"):
         if parent.get_parent() is self or self.children.__contains__(parent):
             raise RuntimeError("Cannot set it's child to it's parent.")
         self.parent = parent

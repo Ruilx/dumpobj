@@ -246,8 +246,9 @@ class Dump(object):
                 for index, (key, value) in enumerate(obj.items()):
                     if self._check_head_count(index):
                         child_node = Node()
-                        child_node.set_key(f"class {key.__qualname__}" if isinstance(key, type) else key.__str__())
-                        self._dump(child_node, value, depth + 1)
+                        # store raw key (could be type, tuple, etc.) and let formatter stringify
+                        child_node.set_key(key)
+                        child_node = self._dump(child_node, value, depth + 1)
                         node.append_node(child_node)
                     else:
                         more_node = Node()
@@ -268,7 +269,7 @@ class Dump(object):
                 for index, value in enumerate(obj):
                     if self._check_head_count(index):
                         child_node = Node()
-                        child_node.set_key(f"[{index}]")
+                        child_node.set_key(("index", index))
                         node.append_node(self._dump(child_node, value, depth + 1))
                     else:
                         more_node = Node()
@@ -336,7 +337,7 @@ class Dump(object):
         node.set_prop("title", self._get_obj_class_str(obj))
         node.set_prop("type", "obj")
         node.set_attrs(self._get_attrs(object, obj))
-        members = obj.__dir__()
+        members = list(obj.__dir__())
         for index, member in enumerate(members):
             if member in self.MagicMethods:
                 continue
@@ -347,7 +348,7 @@ class Dump(object):
                 node.append_node(child_node)
             else:
                 more_node = Node()
-                more_node.set_prop("type", f"More {members.__len__() - self.head_count} items...")
+                more_node.set_prop("type", f"More {len(members) - self.head_count} items...")
                 node.append_node(more_node)
                 break
         return node

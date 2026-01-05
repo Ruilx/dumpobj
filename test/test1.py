@@ -1,5 +1,7 @@
 import sys
 
+from more_itertools.more import raise_
+
 from dumpobj.formatter.color_formatter import ColorFormatter
 
 from dumpobj import dump, Dump
@@ -39,20 +41,15 @@ if __name__ == "__main__":
     #ColorTTY.EscapeChar = r'\e'
 
     b = {
-        "a": [1, 2, 3, 4, 5],
-        "b": "ABCDEFG",
-        "c": {"x": 1, "y": 2},
-        "d": Ellipsis,
-        "e": None,
+        RuntimeError: RuntimeError(123),
     }
 
-    b['ref'] = b['a']
-    b['a'].append(b['c'])
-    b['c']['a'] = b['ref']
+    def raise_exc(n, o, i):
+        raise BaseException("456")
 
     d = Dump()
-    #d.register_handle(A, handle_A)
-    d.set_inline(True)
+    d.register_handle(RuntimeError, raise_exc)
+    d.set_inline(False)
     d.head_count = 100
     d.set_formatter(PlainFormatter())
     for l in d.dump(b):

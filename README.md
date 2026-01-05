@@ -72,7 +72,7 @@ Notes:
 The dumper constructs an intermediate tree of `Node` objects before rendering.
 
 Node fields:
-- key: str — the field/index name (e.g., a dict key or list index like "[0]")
+- key: Hashable — the field/index name (raw key from containers, e.g., a dict key of type, tuple, etc.; list indices remain strings like "[0]"). Formatters are responsible for stringifying keys safely.
 - props: dict — core descriptors
   - title: e.g., the class name of an object
   - type: e.g., "dict", "list", "str", "int", or a fully-qualified class name
@@ -145,13 +145,19 @@ Accessor methods:
 - Plain implementation: `dumpobj.formatter.plain_formatter.PlainFormatter`
   - Config: `attr_key_rename` dict can rename attribute keys in output
   - Indentation: 4 spaces per level, with `+--` tree markers
+  - Keys are safely stringified; types show as `class <qualname>`
 - JSON implementation: `dumpobj.formatter.json_formatter.JSONFormatter`
   - Config: `compact`, `indent`, `ensure_ascii`
-  - Produces a JSON string representing the object structure
+  - Produces a JSON string representing the object structure; keys are stringified
 
 Example: Rename the "@" attribute key to "@":
 
 ```python
+from dumpobj import Dump
+from dumpobj.formatter.plain_formatter import PlainFormatter
+
+obj = {"a": 1}
+
 pf = PlainFormatter()
 pf.config["attr_key_rename"] = {"@": "@"}
 for line in pf.render(Dump().dump_raw(obj)):

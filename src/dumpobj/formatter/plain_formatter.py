@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from typing import Callable, Any
+from typing import Any
 
 from .base_formatter import Formatter
-from ..node import Node, ErrorNode
+from ..node import Node
 
 
 class PlainFormatter(Formatter):
@@ -21,6 +21,12 @@ class PlainFormatter(Formatter):
         self.key_prop_sep = " = "
         self.prop_attr_kv_sep = "="
         self.prop_value_sep = " "
+        # Configs for key rendering
+        self.config.update({
+            "key_show_module_for_types": True,
+            "key_omit_builtins_module": True,
+            "key_use_repr_on_error": True,
+        })
 
     def set_indent_len(self, indent_len: int):
         self.indent_len = indent_len
@@ -65,8 +71,40 @@ class PlainFormatter(Formatter):
         else:
             return f"{self._build_indent_prefix(indent)}{self.indent_tree}"
 
+    def _render_type_key(self, t: type) -> str:
+        if self.config.get("key_show_module_for_types", True):
+            module = t.__module__
+            qual = t.__qualname__
+            if self.config.get("key_omit_builtins_module", True) and module == "builtins":
+                return f"class {qual}"
+            return f"class {module}.{qual}"
+        return f"class {t.__qualname__}"
+
+    def _render_index_key(self, k: Any) -> str:
+        # ('index', i) → [i]
+        try:
+            tag, idx = k
+            if tag == "index":
+                return f"[{idx}]"
+        except Exception:
+            pass
+        return str(k)
+
     def _format_key(self, node: Node) -> str:
-        return node.get_key()
+        key = node.get_key()
+        try:
+            if isinstance(key, type):
+                return self._render_type_key(key)
+            if isinstance(key, tuple):
+                return self._render_index_key(key)
+            return str(key) if key is not None else ""
+        except Exception:
+            if self.config.get("key_use_repr_on_error", True):
+                try:
+                    return repr(key)
+                except Exception:
+                    return "<unprintable key>"
+            return "<unprintable key>"
 
     @staticmethod
     def _format_props_title_and_type(title_str: str, type_str: str):
@@ -117,7 +155,7 @@ class PlainFormatter(Formatter):
 
     def _format_header_error(self, props: str, attrs: str, s: list):
         if props:
-            s.append(f"{self.PropInfoStringPrefix}{props}")
+            s.append(f"{self.PropInfoStringPrefix}ERROR: {props}")
             if attrs:
                 s.append(f" {attrs}")
             s.append(f"{self.PropInfoStringSuffix}")

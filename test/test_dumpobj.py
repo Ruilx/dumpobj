@@ -150,6 +150,28 @@ class TestDumpObj(unittest.TestCase):
         self.assertTrue(len(lines) > 0)
         self.assertTrue(any("dict" in line for line in lines))
 
+    def test_dict_key_as_type_is_printable(self):
+        self.dump.set_inline(False)
+        obj = {dict: 1, int: 2}
+        node = self.dump.dump_raw(obj)
+        lines = self.render_lines(node)
+        # Keys should be stringified safely as "class <qualname>"
+        self.assertTrue(any(line.strip().startswith("+-- class dict = ") for line in lines))
+        self.assertTrue(any(line.strip().startswith("+-- class int = ") for line in lines))
+
+    def test_handler_exception_is_captured(self):
+        class Bad:
+            pass
+        def bad_handler(node: Node, obj: Bad, depth: int) -> Node:
+            raise RuntimeError("oops")
+        self.dump.register_handle(Bad, bad_handler)
+        self.dump.set_inline(False)
+        node = self.dump.dump_raw(Bad())
+        lines = self.render_lines(node)
+        print("\n".join(self.dump.dump(Bad())))
+        # Should include [ERROR] in props
+        self.assertTrue(any("ERROR" in line for line in lines))
+
 
 if __name__ == '__main__':
     unittest.main()
